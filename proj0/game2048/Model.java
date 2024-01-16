@@ -113,12 +113,58 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        board.setViewingPerspective(side);
+        for (int col = 0; col < this.board.size(); col++) {
+            changed = changed || mergeOneColumn(col);
+        }
 
+        board.setViewingPerspective(Side.NORTH);
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    private boolean mergeOneColumn(int col) {
+        boolean changed = false;
+        int mergedRow = this.board.size();
+
+        for (int i = this.board.size() - 2; i >= 0; i--) {
+
+            if (this.board.tile(col, i) == null) {
+                continue;
+            }
+
+            int desiredRow = desiredMergeRow(mergedRow, i, col);
+            if (desiredRow == i) {
+                mergedRow = i;
+            } else {
+                boolean merged = this.board.move(col, desiredRow, this.board.tile(col, i));
+                if (merged) {
+                    this.score += this.board.tile(col, desiredRow).value();
+                    mergedRow = desiredRow;
+                }
+
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
+    private int desiredMergeRow(int top, int bottom, int col) {
+        int r = bottom;
+        int tileValue = this.board.tile(col, bottom).value();
+        for (int i = top - 1; i > bottom; i--) {
+            Tile topTile = this.board.tile(col, i);
+            if (topTile == null || topTile.value() == tileValue) {
+                r = i;
+                break;
+            }
+        }
+
+        return r;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -137,8 +183,16 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      * */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        // TODO: Fill in this function
+        boolean emptyExists = false;
+
+        for (int row = 0; row < b.size(); row++) {
+            for (int col = 0; col < b.size(); col++) {
+                emptyExists = emptyExists || (b.tile(col, row) == null);
+            }
+        }
+
+        return emptyExists;
     }
 
     /**
@@ -148,7 +202,18 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
-        return false;
+        boolean maxTile = false;
+
+        for (int row = 0; row < b.size(); row++) {
+            for (int col = 0; col < b.size(); col++) {
+                Tile tile = b.tile(col, row);
+                if (tile != null) {
+                    maxTile = maxTile || tile.value() == MAX_PIECE;
+                }
+            }
+        }
+
+        return maxTile;
     }
 
     /**
@@ -158,8 +223,40 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        boolean moveExist = false;
+
+        moveExist = emptySpaceExists(b);
+
+        for (int row = 0; row < b.size() && !moveExist; row++) {
+            for (int col = 0; col < b.size() && !moveExist; col++) {
+                Tile tile = b.tile(col, row);
+                if (tile != null) {
+                    int tileValue = tile.value();
+                    Tile topAdjacentTile = row > 0 ? b.tile(col, row - 1) : null;
+                    Tile leftAdjacentTile = col > 0 ? b.tile(col - 1, row) : null;
+                    Tile rightAdjacentTile = col < b.size() - 1 ? b.tile(col + 1, row) : null;
+                    Tile bottomAdjacentTile = row < b.size() - 1 ? b.tile(col, row + 1) : null;
+
+                    if (topAdjacentTile != null) {
+                        moveExist = moveExist || topAdjacentTile.value() == tileValue;
+                    }
+
+                    if (leftAdjacentTile != null) {
+                        moveExist = moveExist || leftAdjacentTile.value() == tileValue;
+                    }
+
+                    if (rightAdjacentTile != null) {
+                        moveExist = moveExist || rightAdjacentTile.value() == tileValue;
+                    }
+
+                    if (bottomAdjacentTile != null) {
+                        moveExist = moveExist || bottomAdjacentTile.value() == tileValue;
+                    }
+                }
+            }
+        }
+
+        return moveExist;
     }
 
 
