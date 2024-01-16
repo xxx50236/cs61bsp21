@@ -115,7 +115,7 @@ public class Model extends Observable {
         // changed local variable to true.
         board.setViewingPerspective(side);
         for (int col = 0; col < this.board.size(); col++) {
-            changed = changed || mergeOneColumn(col);
+            changed = mergeOneColumn(col) || changed;
         }
 
         board.setViewingPerspective(Side.NORTH);
@@ -138,7 +138,7 @@ public class Model extends Observable {
 
             int desiredRow = desiredMergeRow(mergedRow, i, col);
             if (desiredRow == i) {
-                mergedRow = i;
+                mergedRow = i + 1;
             } else {
                 boolean merged = this.board.move(col, desiredRow, this.board.tile(col, i));
                 if (merged) {
