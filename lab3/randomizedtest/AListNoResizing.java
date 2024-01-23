@@ -53,3 +53,12 @@ public class AListNoResizing<Item> {
         return x;
     }
 }
+
+public enum Size {
+    SMALL("s", 1), MEDIUM("m", 2), LARGE("L", 3);
+
+    private Size(String abb, int a) {this.abb = abb};
+
+    private String abb;
+
+}

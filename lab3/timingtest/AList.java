@@ -18,6 +18,8 @@ public class AList<Item> {
     private Item[] items;
     private int size;
 
+    private final int FACTOR = 2;
+
     /** Creates an empty list. */
     public AList() {
         items = (Item[]) new Object[100];
@@ -33,8 +35,8 @@ public class AList<Item> {
 
     /** Inserts X into the back of the list. */
     public void addLast(Item x) {
-        if (size == items.length) {
-            resize(size + 1);
+        if (size == items.length) {·
+            resize(size * FACTOR);
         }
 
         items[size] = x;
